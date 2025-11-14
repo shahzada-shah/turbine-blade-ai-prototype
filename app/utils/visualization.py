@@ -88,7 +88,7 @@ def create_gradcam_heatmap(model, tensor, pil_image, output_path, target_class_i
         cam = torch.sum(weights * acts, dim=1, keepdim=True)
         cam = F.relu(cam)  # Apply ReLU
         cam = F.interpolate(cam, size=(pil_image.size[1], pil_image.size[0]), mode='bilinear', align_corners=False)
-        cam = cam.squeeze().cpu().numpy()
+        cam = cam.squeeze().cpu().detach().numpy()
         
         # Normalize to 0-1
         cam = (cam - cam.min()) / (cam.max() - cam.min() + 1e-8)
