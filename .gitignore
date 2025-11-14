@@ -1,0 +1,31 @@
+# Data directories (too large for git)
+data/
+results/
+uploads/
+
+# OS files
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Model files (keep placeholder, ignore large trained models)
+models/*.pth
+!models/placeholder_model.pth
+
+# Environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
