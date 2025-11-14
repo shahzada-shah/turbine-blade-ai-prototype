@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BladeGuard Heatmap Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .info-item {
+            margin: 5px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 150px;
+        }
+        .heatmap-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .heatmap-container img {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+        .action-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .no-action { background: #4CAF50; color: white; }
+        .monitor { background: #2196F3; color: white; }
+        .investigate { background: #FF9800; color: white; }
+        .shutdown { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 BladeGuard Analysis Results</h1>
+        <div id="results"></div>
+    </div>
+    <script>
+        // Get data from URL parameters or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const dataParam = urlParams.get('data');
+        
+        let data;
+        if (dataParam) {
+            data = JSON.parse(decodeURIComponent(dataParam));
+        } else {
+            data = JSON.parse(localStorage.getItem('bladeguard_result') || '{}');
+        }
+        
+        if (data.heatmap_image) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Info section
+            let actionClass = 'investigate';
+            if (data.recommended_action === 'no_action') actionClass = 'no-action';
+            else if (data.recommended_action === 'monitor') actionClass = 'monitor';
+            else if (data.recommended_action === 'shutdown_and_investigate') actionClass = 'shutdown';
+            
+            resultsDiv.innerHTML = `
+                <div class="info">
+                    <div class="info-item">
+                        <span class="info-label">Blade Type:</span>
+                        <span>${data.blade_type || 'UNKNOWN'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Severity:</span>
+                        <span>${(data.severity || '').replace('_', ' ').toUpperCase()}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Confidence:</span>
+                        <span>${(data.confidence * 100).toFixed(0)}%</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Recommended Action:</span>
+                        <span class="action-badge ${actionClass}">${(data.recommended_action || '').replace('_', ' ').toUpperCase()}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Needs Shutdown:</span>
+                        <span>${data.needs_shutdown ? '⚠️ YES' : '✅ NO'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Action Reason:</span>
+                        <span>${data.action_reason || ''}</span>
+                    </div>
+                </div>
+                <div class="heatmap-container">
+                    <h2>Heatmap Visualization</h2>
+                    <img src="${data.heatmap_image}" alt="Blade Heatmap" />
+                </div>
+            `;
+        } else {
+            document.getElementById('results').innerHTML = '<p>No heatmap data available. Please run an analysis first.</p>';
+        }
+    </script>
+</body>
+</html>
+

@@ -163,8 +163,6 @@ def analyze_blade_image(image_bytes: bytes, blade_type: str = "UNKNOWN"):
         target_class_idx=target_class_idx
     )
 
-
-
     action_info = decide_action(blade_type, severity, confidence)
 
 
