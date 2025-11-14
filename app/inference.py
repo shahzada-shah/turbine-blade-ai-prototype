@@ -1,6 +1,6 @@
 import uuid
 
-from .utils.visualization import create_dummy_heatmap
+from .utils.visualization import create_gradcam_heatmap
 
 from .utils.preprocessing import load_image_from_bytes, preprocess_for_model
 
@@ -144,11 +144,24 @@ def analyze_blade_image(image_bytes: bytes, blade_type: str = "UNKNOWN"):
 
     confidence = round(float(confidence), 2)
 
-
+    # Get class index for Grad-CAM
+    target_class_idx = None
+    if model_loader.model is not None and model_loader.class_names:
+        try:
+            target_class_idx = model_loader.class_names.index(severity)
+        except ValueError:
+            target_class_idx = None
 
     heatmap_filename = f"results/heatmap_{uuid.uuid4().hex}.png"
 
-    create_dummy_heatmap(pil_image, heatmap_filename)  # later: real Grad-CAM
+    # Create real Grad-CAM heatmap (falls back to dummy if model not available)
+    create_gradcam_heatmap(
+        model_loader.model,
+        tensor,
+        pil_image,
+        heatmap_filename,
+        target_class_idx=target_class_idx
+    )
 
 
 
