@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Form
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,8 +9,6 @@ from .inference import analyze_blade_image
 app = FastAPI()
 
 
-
-# CORS (allow all for now)
 
 app.add_middleware(
 
@@ -36,10 +34,16 @@ def root():
 
 @app.post("/analyze-blade")
 
-async def analyze_blade(file: UploadFile = File(...)):
+async def analyze_blade(
+
+    file: UploadFile = File(...),
+
+    blade_type: str = Form("UNKNOWN")  # "TPI" or "LM" preferred
+
+):
 
     image_bytes = await file.read()
 
-    result = analyze_blade_image(image_bytes)
+    result = analyze_blade_image(image_bytes, blade_type=blade_type)
 
     return result
