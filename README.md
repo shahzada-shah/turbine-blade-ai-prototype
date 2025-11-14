@@ -40,9 +40,19 @@ pip install -r requirements.txt
 # Train model (requires data in data/train/, data/val/, data/test/)
 python train_model.py
 
+# Evaluate model
+python tests/test_model.py
+
 # Start API
 uvicorn app.main:app --reload
 ```
+
+## Documentation
+
+- **Architecture**: See `docs/ARCHITECTURE.md`
+- **Model Card**: See `docs/MODEL_CARD.md`
+- **Testing Guide**: See `docs/TESTING.md`
+- **Docker Deployment**: See `Dockerfile` and `docker-compose.yml`
 
 ## API Example
 
