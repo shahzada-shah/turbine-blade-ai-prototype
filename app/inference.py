@@ -1,12 +1,10 @@
 import uuid
 
-from PIL import Image
-
-import random
-
 from .utils.visualization import create_dummy_heatmap
 
-from .utils.preprocessing import load_image_from_bytes
+from .utils.preprocessing import load_image_from_bytes, preprocess_for_model
+
+from .model_loader import model_loader
 
 
 
@@ -134,29 +132,27 @@ def analyze_blade_image(image_bytes: bytes, blade_type: str = "UNKNOWN"):
 
     pil_image = load_image_from_bytes(image_bytes)
 
+    tensor = preprocess_for_model(pil_image)
 
 
-    # ---- TODO: replace this section with real model ----
 
-    classes = ["healthy", "minor_damage", "severe_damage"]
+    # REAL prediction now
 
-    selected = random.choice(classes)
+    severity, confidence = model_loader.predict(tensor)
 
-    confidence = round(random.uniform(0.6, 0.98), 2)
+    damage_detected = severity != "healthy"
 
-    damage_detected = selected != "healthy"
-
-    # ----------------------------------------------------
+    confidence = round(float(confidence), 2)
 
 
 
     heatmap_filename = f"results/heatmap_{uuid.uuid4().hex}.png"
 
-    create_dummy_heatmap(pil_image, heatmap_filename)
+    create_dummy_heatmap(pil_image, heatmap_filename)  # later: real Grad-CAM
 
 
 
-    action_info = decide_action(blade_type, selected, confidence)
+    action_info = decide_action(blade_type, severity, confidence)
 
 
 
@@ -166,12 +162,12 @@ def analyze_blade_image(image_bytes: bytes, blade_type: str = "UNKNOWN"):
 
         "damage_detected": damage_detected,
 
-        "severity": selected,
+        "severity": severity,
 
         "confidence": confidence,
 
         "heatmap_path": heatmap_filename,
 
-        **action_info
+        **action_info,
 
     }
